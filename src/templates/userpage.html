@@ -1,8 +1,44 @@
 {% extends 'base.html' %}
 {% block head %}
-    <title>Hello {{ name }}</title>
+    <title>Hello {{ user.name }}</title>
 {% endblock %}
 {% block body %}
-    <h1>Hello {{ name }}</h1>
+    <h1>Hello {{ user.name }}</h1>
     <a href="/logout">Logout</a>
+    <form action="/userpage" method="post">
+        {{ form.csrf_token }}
+        {{ form.title }}
+        {{ form.content }}
+        {{ form.submit }}
+    </form>
+    <div>
+        {% if Task.query.filter_by(user_id=user.id).all()|length < 1%}
+            <h2>No tasks added yet</h2>
+        {% else %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Title</th>
+                        <th>Task</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in Task.query.filter_by(user_id=user.id).all() %}
+                        <tr>
+                            <td>{{task.id}}</td>
+                            <td>{{task.title}}</td>
+                            <td>{{task.task}}</td>
+                            <td>{{task.date.date()}}</td>
+                            <td>
+                                <a href="/delete/{{ task.id }}">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
 {% endblock %}

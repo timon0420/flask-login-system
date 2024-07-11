@@ -39,3 +39,12 @@ class LoginForm(FlaskForm):
             raise ValidationError(
                 'This login already existing'
             )
+        
+class TaskForm(FlaskForm):
+    title = StringField(validators=[InputRequired(), Length(
+        min=5, max=50
+    )], render_kw={'placeholder': 'Title'})
+    content = StringField(validators=[InputRequired(), Length(
+        min=10
+    )], render_kw={'placeholder': 'Content'})
+    submit = SubmitField('Add task')

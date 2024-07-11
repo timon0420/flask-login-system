@@ -1,7 +1,7 @@
 from src import app, db, csrf, bcrypt
 from flask import render_template, redirect
-from src.models import User
-from src.form import RegistrationForm, LoginForm
+from src.models import User, Task
+from src.form import RegistrationForm, LoginForm, TaskForm
 from flask_login import login_user, login_required, logout_user, current_user
 @app.route('/')
 def index():
@@ -36,10 +36,21 @@ def login():
             return redirect('/userpage')
     return render_template('login.html', form=form)
 
-@app.route('/userpage')
+@app.route('/userpage', methods=['GET', 'POST'])
 def userpage():
     try: 
-        return render_template('userpage.html', name=current_user.name)
+        form = TaskForm()
+        if form.validate_on_submit():
+            title = form.title.data
+            task = form.content.data
+            new_task = Task(user_id=current_user.id, title=title, task=task)
+            try:
+                db.session.add(new_task)
+                db.session.commit()
+                return redirect('/userpage')
+            except Exception as e:
+                return f'<h1>{e}</h1>'
+        return render_template('userpage.html', user=current_user, form=form, Task=Task)
     except Exception as e:
         return f'<h1>{e}</h1>'
 
@@ -47,3 +58,13 @@ def userpage():
 def logout():
     logout_user()
     return redirect('/')
+
+@app.route('/delete/<int:id>', methods=['POST', 'GET'])
+def delete(id):
+    try: 
+        task = Task.query.filter_by(id=id, user_id=current_user.id).first()
+        db.session.delete(task)
+        db.session.commit()
+        return redirect('/userpage')
+    except:
+        return redirect('/userpage')
