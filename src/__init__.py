@@ -12,7 +12,7 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-from src.models import User
+from src.models import User, Task
 
 @login_manager.user_loader
 def load_user(id):
